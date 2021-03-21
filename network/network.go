@@ -106,6 +106,8 @@ func NewNetwork(conf *Config) (*Network, error) {
 	n.logger = logger.NewLogger("_network", n)
 	n.logger.Info("Network started", "id", n.host.ID(), "address", conf.ListenAddress)
 
+	// n.host.Network().Notify(NewFirewall())
+
 	if conf.EnableMDNS {
 		mdns, err := n.setupMNSDiscovery(n.ctx, n.host)
 		if err != nil {

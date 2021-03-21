@@ -6,7 +6,6 @@ import (
 	"time"
 
 	host "github.com/libp2p/go-libp2p-core/host"
-	"github.com/libp2p/go-libp2p-core/network"
 	inet "github.com/libp2p/go-libp2p-core/network"
 	peer "github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/routing"
@@ -97,7 +96,7 @@ func (b *Bootstrapper) checkConnectivity() {
 	var connectedPeers []peer.ID
 	for _, p := range currentPeers {
 		connectedness := b.dialer.Connectedness(p)
-		if connectedness == network.Connected {
+		if connectedness == inet.Connected {
 			connectedPeers = append(connectedPeers, p)
 		} else {
 			b.logger.Warn("Peer is not connected to us", "peer", p)
