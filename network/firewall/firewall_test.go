@@ -25,7 +25,7 @@ func TestFirewall_Connected(t *testing.T) {
 
 	//add firewall to host
 	host.Network().Notify(fw)
-	fw.ps.(*DefaultSelector).trustedNodes.TryAdd(forbidenPeer.ID())
+	fw.ps.(*DefaultSelector).trustedNodes.TryAdd(allowedPeer.ID())
 
 	net.LinkAll()
 	//check if allowed peer can connect

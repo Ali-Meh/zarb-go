@@ -9,7 +9,7 @@ import (
 	"github.com/zarbchain/zarb-go/util"
 )
 
-//PeerSelector filters wether or not a peer is allowd and trusted to be connected or not
+//PeerSelector filters wether or not a peer is allowed and trusted to be connected or not
 //its main firewall interface on p2p layer to be implemented
 type PeerSelector interface {
 	//check to see if Peer is allowed to connect
@@ -63,7 +63,7 @@ func decodeConfig(t io.Reader) ([]peer.ID, error) {
 
 func (ps *DefaultSelector) CanConnect(peer peer.AddrInfo) bool {
 	if ps.trustedNodes.Size() > 0 {
-		return ps.trustedNodes.Contains(peer.ID)
+		return !ps.trustedNodes.Contains(peer.ID)
 	}
 	return true
 }

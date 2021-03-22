@@ -51,7 +51,7 @@ func (fw *Firewall) ListenClose(n network.Network, m multiaddr.Multiaddr) {
 
 // called when a connection opened
 func (fw *Firewall) Connected(n network.Network, c network.Conn) {
-	fw.logger.Debug("New Node Tring To Connected ", "peerid", c.RemotePeer(), "Addrs", c.RemoteMultiaddr())
+	fw.logger.Info("New Node Tring To Connected ", "peerid", c.RemotePeer(), "Addrs", c.RemoteMultiaddr())
 
 	if fw.ps.CanConnect(n.Peerstore().PeerInfo(c.RemotePeer())) {
 		fw.logger.Debug("Node Disconnected Due to selector Policy", "Peerid", c.RemotePeer())
