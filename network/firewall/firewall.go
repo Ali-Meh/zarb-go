@@ -24,14 +24,15 @@ func NewFirewall(ps PeerSelector, lg *logger.Logger) (*Firewall, error) {
 		logger: lg,
 	}
 	if lg == nil {
-		fw.logger = logger.NewLogger("_network_firewall", fw)
+		fw.logger = logger.NewLogger("_network_firewall", *fw)
 	}
 
 	fw.logger.Info("Network Firewall started")
 
 	if err := fw.ps.Load(); err != nil {
-		fw.logger.Error("PeerSelector Couldn't load policy configuration", "err", err)
-		return nil, err
+		fw.logger.Debug("PeerSelector Couldn't load policy configuration", "err", err)
+		fw.logger.Warn("couldn't Load firewall policy may allow any one to connect")
+		// return nil, err
 	}
 
 	return fw, nil
@@ -76,7 +77,7 @@ func (fw *Firewall) ClosedStream(n network.Network, s network.Stream) {
 
 /***************************************Notifee Interface*******************************************/
 
-func (fw *Firewall) Close() error {
+func (fw *Firewall) Stop() error {
 	fw.logger.Info("Cosing firewall ...")
 	err := fw.ps.Store()
 	if err != nil {

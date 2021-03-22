@@ -17,6 +17,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/discovery"
 	"github.com/zarbchain/zarb-go/errors"
 	"github.com/zarbchain/zarb-go/logger"
+	"github.com/zarbchain/zarb-go/network/firewall"
 	"github.com/zarbchain/zarb-go/util"
 	"github.com/zarbchain/zarb-go/version"
 )
@@ -30,6 +31,7 @@ type Network struct {
 	kademlia     *libp2pdht.IpfsDHT
 	bootstrapper *Bootstrapper
 	logger       *logger.Logger
+	fw           *firewall.Firewall
 }
 
 func loadOrCreateKey(path string) (acrypto.PrivKey, error) {
@@ -106,7 +108,14 @@ func NewNetwork(conf *Config) (*Network, error) {
 	n.logger = logger.NewLogger("_network", n)
 	n.logger.Info("Network started", "id", n.host.ID(), "address", conf.ListenAddress)
 
-	// n.host.Network().Notify(NewFirewall())
+	if conf.EnableP2PFirewall {
+		fw, err := firewall.NewFirewall(nil, n.logger)
+		if err != nil {
+			n.logger.Error("Unable to setup firewall", "err", err)
+			n.host.Network().Notify(fw)
+		}
+		n.fw = fw
+	}
 
 	if conf.EnableMDNS {
 		mdns, err := n.setupMNSDiscovery(n.ctx, n.host)
@@ -149,6 +158,9 @@ func (n *Network) Stop() {
 	}
 	if n.bootstrapper != nil {
 		n.bootstrapper.Stop()
+	}
+	if n.fw != nil {
+		n.fw.Stop()
 	}
 	if err := n.host.Close(); err != nil {
 		n.logger.Error("Unable to close the network", "err", err)

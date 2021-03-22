@@ -1,9 +1,11 @@
 package firewall
 
 import (
+	"os"
 	"testing"
 
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/stretchr/testify/assert"
 	"github.com/zarbchain/zarb-go/util"
 )
 
@@ -44,4 +46,21 @@ func TestDefaultSelector_CanConnect(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDefaultSelector_Store_Load(t *testing.T) {
+	os.Remove(configFile)
+	ps := NewSelector()
+	err := ps.Load()
+	assert.Nil(t, err, "Loading had issue")
+	assert.Equal(t, 0, ps.trustedNodes.Size())
+	ps.trustedNodes.Add(util.RandomPeerID())
+	assert.Equal(t, 1, ps.trustedNodes.Size())
+	err = ps.Store()
+	assert.Nil(t, err, "Storing config Errored")
+	ps2 := NewSelector()
+	err = ps2.Load()
+	assert.Nil(t, err, "2nd Loading had issue")
+	assert.Equal(t, 1, ps2.trustedNodes.Size())
+	assert.Equal(t, ps, ps2)
 }
