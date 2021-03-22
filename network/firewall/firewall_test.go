@@ -31,8 +31,6 @@ func TestFirewall_Connected(t *testing.T) {
 	//check if allowed peer can connect
 	err := net.ConnectAllButSelf()
 	assert.Nil(t, err)
-	_, err = net.ConnectPeers(host.ID(), net.Peers()[1])
-	assert.Nil(t, err)
 	err = host.Connect(ctx, allowedPeer.Peerstore().PeerInfo(allowedPeer.ID()))
 	assert.Nil(t, err)
 	assert.Equal(t, network.Connected, host.Network().Connectedness(allowedPeer.ID()))
