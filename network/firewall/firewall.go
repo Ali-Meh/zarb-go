@@ -41,6 +41,8 @@ func NewFirewall(ps PeerSelector, lg *logger.Logger) (*Firewall, error) {
 /***************************************Notifee Interface*******************************************/
 // called when network starts listening on an addr
 func (fw *Firewall) Listen(n network.Network, m multiaddr.Multiaddr) {
+	// libp2p.ConnectionGater(connmgr.ConnectionGater)
+	//COntinure with
 	fw.logger.Trace("Network is up Listening", "Address", m.String())
 }
 
