@@ -12,4 +12,6 @@ type NetworkAPI interface {
 	JoinDownloadTopic() error
 	LeaveDownloadTopic()
 	SelfID() peer.ID
+	AllowFrom(peer.ID) bool
+	DropPeer(peer.ID) error
 }

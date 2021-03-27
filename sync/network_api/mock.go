@@ -14,18 +14,23 @@ import (
 	"github.com/zarbchain/zarb-go/sync/message/payload"
 )
 
+type errorFunc func() error
+
 type MockNetworkAPI struct {
-	ch       chan *message.Message
-	id       peer.ID
-	Firewall *firewall.Firewall
-	ParsFn   ParsMessageFn
-	OtherAPI *MockNetworkAPI
+	ch             chan *message.Message
+	id             peer.ID
+	Firewall       *firewall.Firewall
+	ParsFn         ParsMessageFn
+	OtherAPI       *MockNetworkAPI
+	DropPeerFn     errorFunc
+	AllowFromValue bool
 }
 
-func MockingNetworkAPI(id peer.ID) *MockNetworkAPI {
+func MockingNetworkAPI(id peer.ID, opts ...errorFunc) *MockNetworkAPI {
 	return &MockNetworkAPI{
-		ch: make(chan *message.Message, 100),
-		id: id,
+		ch:         make(chan *message.Message, 100),
+		id:         id,
+		DropPeerFn: func() error { return nil },
 	}
 }
 func (mock *MockNetworkAPI) Start() error {
@@ -44,6 +49,15 @@ func (mock *MockNetworkAPI) PublishMessage(msg *message.Message) error {
 func (mock *MockNetworkAPI) SelfID() peer.ID {
 	return mock.id
 }
+
+func (mock *MockNetworkAPI) DropPeer(peerId peer.ID) error {
+	return mock.DropPeerFn()
+}
+
+func (mock *MockNetworkAPI) AllowFrom(peerId peer.ID) bool {
+	return mock.AllowFromValue
+}
+
 func (mock *MockNetworkAPI) CheckAndParsMessage(msg *message.Message, id peer.ID) bool {
 	d, _ := msg.Encode()
 	msg2 := mock.Firewall.ParsMessage(d, id)

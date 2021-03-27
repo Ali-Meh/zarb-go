@@ -7,6 +7,7 @@ import (
 	"github.com/zarbchain/zarb-go/errors"
 	"github.com/zarbchain/zarb-go/logger"
 	"github.com/zarbchain/zarb-go/sync/firewall"
+	"github.com/zarbchain/zarb-go/sync/peerset"
 
 	"github.com/libp2p/go-libp2p-core/peer"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -30,6 +31,7 @@ type networkAPI struct {
 	downloadSub    *pubsub.Subscription
 	dataSub        *pubsub.Subscription
 	consensusSub   *pubsub.Subscription
+	trustedNodes   *peerset.PeerSet
 	parsFn         ParsMessageFn
 	wg             sync.WaitGroup
 }
@@ -149,6 +151,14 @@ func (api *networkAPI) parsMessage(m *pubsub.Message) {
 		return
 	}
 
+	if !api.AllowFrom(m.ReceivedFrom) {
+		err := api.DropPeer(m.ReceivedFrom)
+		if err != nil {
+			logger.Error("Error Droping Untrusted Peer", "err", err)
+		}
+		return
+	}
+
 	msg := api.firewall.ParsMessage(m.Data, m.ReceivedFrom)
 	if msg != nil {
 		api.parsFn(msg, m.ReceivedFrom)
@@ -258,4 +268,15 @@ func (api *networkAPI) topic(msg *message.Message) *pubsub.Topic {
 
 func (api *networkAPI) SelfID() peer.ID {
 	return api.selfID
+}
+
+func (api *networkAPI) DropPeer(peerId peer.ID) error {
+	return api.net.ClosePeer(peerId)
+}
+
+func (api *networkAPI) AllowFrom(peerId peer.ID) bool {
+	if api.trustedNodes.Len() > 0 {
+		return api.trustedNodes.GetPeer(peerId) != nil
+	}
+	return true
 }

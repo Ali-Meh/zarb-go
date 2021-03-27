@@ -45,6 +45,7 @@ func (f *Firewall) ParsMessage(data []byte, from peer.ID) *message.Message {
 	}
 
 	if f.badPeer(peer) {
+		//TODO Blacklist peer in network
 		return nil
 	}
 

@@ -169,3 +169,7 @@ func (n *Network) JoinTopic(name string) (*pubsub.Topic, error) {
 	topic := fmt.Sprintf("/zarb/pubsub/%s/v1/%s", n.config.Name, name)
 	return n.pubsub.Join(topic)
 }
+
+func (n *Network) ClosePeer(peerId peer.ID) error {
+	return n.host.Network().ClosePeer(peerId)
+}
