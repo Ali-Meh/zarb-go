@@ -122,6 +122,16 @@ func (m *MockStore) IterateValidators(consumer func(*validator.Validator) (stop 
 	}
 }
 
+func (m *MockStore) iterateTransactions(consumer func(*tx.Tx) (stop bool)) {
+	for _, v := range m.Transactions {
+		trx := v
+		stopped := consumer(&trx)
+		if stopped {
+			return
+		}
+	}
+}
+
 func (m *MockStore) SaveBlock(height int, block *block.Block) {
 	m.Blocks[height] = block
 }

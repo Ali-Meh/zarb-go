@@ -7,6 +7,7 @@ import (
 	"github.com/zarbchain/zarb-go/account"
 	"github.com/zarbchain/zarb-go/block"
 	"github.com/zarbchain/zarb-go/crypto"
+	"github.com/zarbchain/zarb-go/tx"
 	"github.com/zarbchain/zarb-go/util"
 	"github.com/zarbchain/zarb-go/validator"
 )
@@ -211,6 +212,35 @@ func TestIterateValidators(t *testing.T) {
 	})
 
 	assert.ElementsMatch(t, vals1, vals2)
+}
+
+func TestIterateTransactions(t *testing.T) {
+	setup(t)
+
+	b, txs := block.GenerateTestBlock(nil, nil)
+	h := util.RandInt(10000)
+	tStore.SaveBlock(h, b)
+	for _, trx := range txs {
+		tStore.SaveTransaction(trx)
+		assert.NoError(t, tStore.WriteBatch())
+	}
+
+	stop := false
+	tStore.iterateTransactions(func(trx *tx.Tx) bool {
+		if trx.ID().EqualsTo(txs[0].ID()) {
+			stop = true
+		}
+		return stop
+	})
+	assert.True(t, stop)
+
+	trxs2 := []tx.Tx{}
+	tStore.iterateTransactions(func(trx *tx.Tx) bool {
+		trxs2 = append(trxs2, *trx)
+		return false
+	})
+
+	assert.Equal(t, len(txs), len(trxs2))
 }
 
 func TestReestoreLastInfo(t *testing.T) {

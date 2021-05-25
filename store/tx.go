@@ -3,6 +3,7 @@ package store
 import (
 	"github.com/fxamacker/cbor/v2"
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/util"
 	"github.com/zarbchain/zarb-go/tx"
 )
 
@@ -48,4 +49,24 @@ func (ts *txStore) tx(id tx.ID) (*tx.Tx, error) {
 		return nil, err
 	}
 	return trx, nil
+}
+
+func (as *txStore) iterateTransactions(consumer func(*tx.Tx) (stop bool)) {
+	r := util.BytesPrefix(txPrefix)
+	iter := as.db.NewIterator(r, nil)
+	defer iter.Release()
+	for iter.Next() {
+		//key := iter.Key()
+		value := iter.Value()
+
+		trx := new(tx.Tx)
+		if err := trx.Decode(value); err != nil {
+			panic(err)
+		}
+
+		stopped := consumer(trx)
+		if stopped {
+			return
+		}
+	}
 }

@@ -21,6 +21,7 @@ type Reader interface {
 	ValidatorByNumber(num int) (*validator.Validator, error)
 	IterateValidators(consumer func(*validator.Validator) (stop bool))
 	IterateAccounts(consumer func(*account.Account) (stop bool))
+	iterateTransactions(consumer func(*tx.Tx) (stop bool))
 	TotalValidators() int
 	RestoreLastInfo() []byte
 }

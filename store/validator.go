@@ -70,6 +70,7 @@ func (vs *validatorStore) validatorByNumber(num int) (*validator.Validator, erro
 func (vs *validatorStore) iterateValidators(consumer func(*validator.Validator) (stop bool)) {
 	r := util.BytesPrefix(validatorPrefix)
 	iter := vs.db.NewIterator(r, nil)
+	defer iter.Release()
 	for iter.Next() {
 		// key := iter.Key()
 		value := iter.Value()
@@ -85,7 +86,6 @@ func (vs *validatorStore) iterateValidators(consumer func(*validator.Validator) 
 		}
 
 	}
-	iter.Release()
 }
 
 func (vs *validatorStore) updateValidator(batch *leveldb.Batch, val *validator.Validator) error {
