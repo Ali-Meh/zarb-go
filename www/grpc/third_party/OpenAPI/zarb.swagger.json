@@ -39,6 +39,17 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "verbosity",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "ACCOUNT_INFO",
+              "ACCOUNT_TRANSACTIONS"
+            ],
+            "default": "ACCOUNT_INFO"
           }
         ],
         "tags": [
@@ -363,8 +374,22 @@
       "properties": {
         "account": {
           "$ref": "#/definitions/zarbAccount"
+        },
+        "tranactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/zarbTransaction"
+          }
         }
       }
+    },
+    "zarbAccountVerbosity": {
+      "type": "string",
+      "enum": [
+        "ACCOUNT_INFO",
+        "ACCOUNT_TRANSACTIONS"
+      ],
+      "default": "ACCOUNT_INFO"
     },
     "zarbBlockHeightResponse": {
       "type": "object",

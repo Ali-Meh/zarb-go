@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/zarbchain/zarb-go/crypto"
+	"github.com/zarbchain/zarb-go/validator"
 	zarb "github.com/zarbchain/zarb-go/www/grpc/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -40,35 +41,27 @@ func (zs *zarbServer) GetValidator(ctx context.Context, request *zarb.ValidatorR
 		return nil, status.Errorf(codes.NotFound, "NotFound Validator Address")
 	}
 
-	// TODO: make a function
-	// proto validator from native validator
 	return &zarb.ValidatorResponse{
-		Validator: &zarb.Validator{
-			PublicKey:         validator.PublicKey().String(),
-			Address:           validator.Address().String(),
-			Number:            int32(validator.Number()),
-			Sequence:          int32(validator.Sequence()),
-			Stake:             validator.Stake(),
-			LastBondingHeight: int32(validator.LastBondingHeight()),
-			LastJoinedHeight:  int32(validator.LastJoinedHeight()),
-		},
+		Validator: convertValidator(validator),
 	}, nil
 }
 func (zs *zarbServer) GetValidators(ctx context.Context, request *zarb.ValidatorsRequest) (*zarb.ValidatorsResponse, error) {
 	validators := zs.state.CommitteeValidators()
 	validatorsResp := make([]*zarb.Validator, 0)
 	for _, v := range validators {
-		// TODO: make a function
-		// proto validator from native validator
-		validatorsResp = append(validatorsResp, &zarb.Validator{
-			PublicKey:         v.PublicKey().String(),
-			Address:           v.Address().String(),
-			Number:            int32(v.Number()),
-			Sequence:          int32(v.Sequence()),
-			Stake:             v.Stake(),
-			LastBondingHeight: int32(v.LastBondingHeight()),
-			LastJoinedHeight:  int32(v.LastJoinedHeight()),
-		})
+		validatorsResp = append(validatorsResp,convertValidator(v) )
 	}
 	return &zarb.ValidatorsResponse{Validators: validatorsResp}, nil
+}
+
+func convertValidator(val *validator.Validator) *zarb.Validator {
+	return &zarb.Validator{
+		PublicKey:         val.PublicKey().String(),
+		Address:           val.Address().String(),
+		Number:            int32(val.Number()),
+		Sequence:          int32(val.Sequence()),
+		Stake:             val.Stake(),
+		LastBondingHeight: int32(val.LastBondingHeight()),
+		LastJoinedHeight:  int32(val.LastJoinedHeight()),
+	}
 }

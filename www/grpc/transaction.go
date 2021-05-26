@@ -23,18 +23,7 @@ func (zs *zarbServer) GetTransaction(ctx context.Context, request *zarb.Transact
 	}
 
 	return &zarb.TransactionResponse{
-		Tranaction: &zarb.Transaction{
-			Id:        trx.ID().String(),
-			Version:   int32(trx.Version()),
-			Stamp:     trx.Stamp().String(),
-			Sequence:  int64(trx.Sequence()),
-			Fee:       trx.Fee(),
-			Type:      zarb.PayloadType(trx.PayloadType() - 1), //enums starting from 0
-			Payload:   trx.Payload().Signer().RawBytes(),
-			Memo:      trx.Memo(),
-			PublicKey: trx.PublicKey().String(),
-			Signature: trx.Signature().String(),
-		},
+		Tranaction: convertTransaction(trx),
 	}, nil
 
 }
@@ -61,4 +50,19 @@ func (zs *zarbServer) SendRawTransaction(ctx context.Context, request *zarb.Send
 	return &zarb.SendRawTransactionResponse{
 		Id: tx.ID().String(),
 	}, nil
+}
+
+func convertTransaction(trx *tx.Tx) *zarb.Transaction {
+	return &zarb.Transaction{
+		Id:        trx.ID().String(),
+		Version:   int32(trx.Version()),
+		Stamp:     trx.Stamp().String(),
+		Sequence:  int64(trx.Sequence()),
+		Fee:       trx.Fee(),
+		Type:      zarb.PayloadType(trx.PayloadType() - 1), //enums starting from 0
+		Payload:   trx.Payload().Signer().RawBytes(),
+		Memo:      trx.Memo(),
+		PublicKey: trx.PublicKey().String(),
+		Signature: trx.Signature().String(),
+	}
 }

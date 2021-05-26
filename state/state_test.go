@@ -681,9 +681,7 @@ func TestAccountTransactions(t *testing.T) {
 	trx1 := tx.NewSendTx(b1.Hash(), 1, tValSigner1.Address(), addr, 1, 1000, "")
 	tValSigner1.SignMsg(trx1)
 
-	tState1.txPool.AppendTx(trx1)
-	b2, c2 := makeBlockAndCertificate(t, 3, tValSigner1, tValSigner2, tValSigner3, tValSigner4)
-	tState1.CommitBlock(2, b2, c2)
+	tState1.store.SaveTransaction(trx1)
 
 	t.Run("Should find one transaction", func(t *testing.T) {
 		trxs := tState1.AccountTransactions(addr)

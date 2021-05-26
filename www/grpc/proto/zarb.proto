@@ -23,10 +23,12 @@ service Zarb {
 
 message AccountRequest {
 	string address = 1;
+  AccountVerbosity verbosity = 2;
 }
 
 message AccountResponse {
   Account account =1;
+  repeated Transaction tranactions=2;
 }
 
 message ValidatorsRequest {}
@@ -167,4 +169,10 @@ enum BlockVerbosity {
   BLOCK_HASH = 0;
   BLOCK_DATA = 1;
   BLOCK_TRANSACTIONS = 2;
+}
+
+
+enum AccountVerbosity {
+  ACCOUNT_INFO = 0;
+  ACCOUNT_TRANSACTIONS = 1;
 }
