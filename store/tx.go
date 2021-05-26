@@ -51,7 +51,7 @@ func (ts *txStore) tx(id tx.ID) (*tx.Tx, error) {
 	return trx, nil
 }
 
-func (as *txStore) iterateTransactions(consumer func(*tx.Tx) (stop bool)) {
+func (as *txStore) IterateTransactions(consumer func(*tx.Tx) (stop bool)) {
 	r := util.BytesPrefix(txPrefix)
 	iter := as.db.NewIterator(r, nil)
 	defer iter.Release()

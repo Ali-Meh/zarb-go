@@ -123,11 +123,11 @@ func (s *store) IterateAccounts(consumer func(*account.Account) (stop bool)) {
 	s.accountStore.iterateAccounts(consumer)
 }
 
-func (s *store) iterateTransactions(consumer func(*tx.Tx) (stop bool)) {
+func (s *store) IterateTransactions(consumer func(*tx.Tx) (stop bool)) {
 	s.lk.Lock()
 	defer s.lk.Unlock()
 
-	s.txStore.iterateTransactions(consumer)
+	s.txStore.IterateTransactions(consumer)
 }
 
 func (s *store) UpdateAccount(acc *account.Account) {

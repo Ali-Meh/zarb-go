@@ -226,7 +226,7 @@ func TestIterateTransactions(t *testing.T) {
 	}
 
 	stop := false
-	tStore.iterateTransactions(func(trx *tx.Tx) bool {
+	tStore.IterateTransactions(func(trx *tx.Tx) bool {
 		if trx.ID().EqualsTo(txs[0].ID()) {
 			stop = true
 		}
@@ -235,7 +235,7 @@ func TestIterateTransactions(t *testing.T) {
 	assert.True(t, stop)
 
 	trxs2 := []tx.Tx{}
-	tStore.iterateTransactions(func(trx *tx.Tx) bool {
+	tStore.IterateTransactions(func(trx *tx.Tx) bool {
 		trxs2 = append(trxs2, *trx)
 		return false
 	})

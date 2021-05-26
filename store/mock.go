@@ -122,7 +122,7 @@ func (m *MockStore) IterateValidators(consumer func(*validator.Validator) (stop 
 	}
 }
 
-func (m *MockStore) iterateTransactions(consumer func(*tx.Tx) (stop bool)) {
+func (m *MockStore) IterateTransactions(consumer func(*tx.Tx) (stop bool)) {
 	for _, v := range m.Transactions {
 		trx := v
 		stopped := consumer(&trx)

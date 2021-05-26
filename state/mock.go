@@ -12,6 +12,7 @@ import (
 	"github.com/zarbchain/zarb-go/errors"
 	"github.com/zarbchain/zarb-go/store"
 	"github.com/zarbchain/zarb-go/tx"
+	"github.com/zarbchain/zarb-go/tx/payload"
 	"github.com/zarbchain/zarb-go/txpool"
 	"github.com/zarbchain/zarb-go/util"
 	"github.com/zarbchain/zarb-go/validator"
@@ -192,6 +193,27 @@ func (m *MockState) Account(addr crypto.Address) *account.Account {
 	defer m.Lock.RUnlock()
 	a, _ := m.Store.Account(addr)
 	return a
+}
+func (m *MockState) AccountTransactions(addr crypto.Address) []*tx.Tx {
+	m.Lock.RLock()
+	defer m.Lock.RUnlock()
+
+	trxs := make([]*tx.Tx, 0)
+
+	m.Store.IterateTransactions(func(t *tx.Tx) (stop bool) {
+		switch t.PayloadType() {
+		case payload.PayloadTypeSend:
+			if t.Payload().(*payload.SendPayload).Receiver == addr || t.Payload().(*payload.SendPayload).Sender == addr {
+				trxs = append(trxs, t)
+			}
+		case payload.PayloadTypeBond:
+			if t.Payload().(*payload.BondPayload).Bonder == addr || t.Payload().(*payload.BondPayload).Validator.Address() == addr {
+				trxs = append(trxs, t)
+			}
+		}
+		return false
+	})
+	return trxs
 }
 func (m *MockState) Validator(addr crypto.Address) *validator.Validator {
 	m.Lock.RLock()

@@ -35,6 +35,7 @@ type Facade interface {
 	Block(height int) *block.Block
 	BlockHeight(hash crypto.Hash) int
 	Account(addr crypto.Address) *account.Account
+	AccountTransactions(addr crypto.Address) []*tx.Tx
 	Validator(addr crypto.Address) *validator.Validator
 	ValidatorByNumber(number int) *validator.Validator
 	Close() error

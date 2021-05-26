@@ -664,3 +664,32 @@ func TestSetBlockTime(t *testing.T) {
 		assert.Zero(t, b.Header().Time().Second()%10)
 	})
 }
+
+func TestAccountTransactions(t *testing.T) {
+	setup(t)
+
+	b1, c1 := makeBlockAndCertificate(t, 0, tValSigner1, tValSigner2, tValSigner3)
+	tState1.CommitBlock(1, b1, c1)
+
+	addr, _, _ := crypto.GenerateTestKeyPair()
+
+	t.Run("Should find no transaction", func(t *testing.T) {
+		trxs := tState1.AccountTransactions(addr)
+		assert.Empty(t, trxs, "there should be no transaction for this addres")
+	})
+
+	trx1 := tx.NewSendTx(b1.Hash(), 1, tValSigner1.Address(), addr, 1, 1000, "")
+	tValSigner1.SignMsg(trx1)
+
+	tState1.txPool.AppendTx(trx1)
+	b2, c2 := makeBlockAndCertificate(t, 3, tValSigner1, tValSigner2, tValSigner3, tValSigner4)
+	tState1.CommitBlock(2, b2, c2)
+
+	t.Run("Should find one transaction", func(t *testing.T) {
+		trxs := tState1.AccountTransactions(addr)
+		assert.NotEmpty(t, trxs, "there should be no transaction for this addres")
+		assert.Equal(t, trxs[0].ID(), trx1.ID())
+		assert.Equal(t, len(trxs), 1)
+	})
+
+}

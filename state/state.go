@@ -19,6 +19,7 @@ import (
 	"github.com/zarbchain/zarb-go/state/lastinfo"
 	"github.com/zarbchain/zarb-go/store"
 	"github.com/zarbchain/zarb-go/tx"
+	"github.com/zarbchain/zarb-go/tx/payload"
 	"github.com/zarbchain/zarb-go/txpool"
 	"github.com/zarbchain/zarb-go/util"
 	"github.com/zarbchain/zarb-go/validator"
@@ -592,6 +593,26 @@ func (st *state) Account(addr crypto.Address) *account.Account {
 		st.logger.Trace("Error on retrieving account", "err", err)
 	}
 	return acc
+}
+
+func (st *state) AccountTransactions(addr crypto.Address) []*tx.Tx {
+
+	trxs := make([]*tx.Tx, 0)
+
+	st.store.IterateTransactions(func(t *tx.Tx) (stop bool) {
+		switch t.PayloadType() {
+		case payload.PayloadTypeSend:
+			if t.Payload().(*payload.SendPayload).Receiver == addr || t.Payload().(*payload.SendPayload).Sender == addr {
+				trxs = append(trxs, t)
+			}
+		case payload.PayloadTypeBond:
+			if t.Payload().(*payload.BondPayload).Bonder == addr || t.Payload().(*payload.BondPayload).Validator.Address() == addr {
+				trxs = append(trxs, t)
+			}
+		}
+		return false
+	})
+	return trxs
 }
 
 func (st *state) Validator(addr crypto.Address) *validator.Validator {
